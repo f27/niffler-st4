@@ -29,16 +29,14 @@ public class SpendingTest {
     @Test
     @DisplayName("Выбранная трата должна быть удалена при нажатии кнопки [Delete selected]")
     void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
-        //arrange
         Selenide.open("http://127.0.0.1:3000", WelcomePage.class)
                 .clickLoginButton()
                 .setUsername("duck")
                 .setPassword("12345")
-                .clickSignInButton(new MainPage())
+                .clickSignInButton(MainPage.class)
+                .checkSpendingsTableHasSize(1)
                 .selectSpendingByDescription(spend.description())
-                //act
                 .clickDeleteSelectedButton()
-                //assert
-                .checkSpendingsTableIsEmpty();
+                .checkSpendingsTableHasSize(0);
     }
 }
