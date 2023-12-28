@@ -12,7 +12,7 @@ import guru.qa.niffler.page.WelcomePage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class SpendingTest {
+public class SpendingTest extends BaseWebTest{
 
     private final WelcomePage welcomePage = new WelcomePage();
     private final MainPage mainPage = new MainPage();
