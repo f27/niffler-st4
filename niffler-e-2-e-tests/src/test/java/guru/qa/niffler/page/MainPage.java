@@ -31,7 +31,7 @@ public class MainPage {
     }
 
     @Step("Проверить, что в таблице с тратами количество строк равно [{size}]")
-    public MainPage checkSpendingsTableHasSize(int size) {
+    public MainPage checkSpendingsTableRowsHasSize(int size) {
         spendingsTableRows.shouldHave(size(size));
         return this;
     }

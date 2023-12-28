@@ -42,9 +42,9 @@ public class SpendingTest {
                 .setPassword("12345")
                 .clickSignInButton();
         mainPage
-                .checkSpendingsTableHasSize(1)
+                .checkSpendingsTableRowsHasSize(1)
                 .selectSpendingByDescription(spend.description())
                 .clickDeleteSelectedButton()
-                .checkSpendingsTableHasSize(0);
+                .checkSpendingsTableRowsHasSize(0);
     }
 }
