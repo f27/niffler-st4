@@ -1,5 +1,6 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
@@ -12,6 +13,6 @@ public class WelcomePage {
     @Step("Нажать кнопку [Login]")
     public LoginPage clickLoginButton() {
         loginButton.click();
-        return new LoginPage();
+        return Selenide.page(LoginPage.class);
     }
 }
