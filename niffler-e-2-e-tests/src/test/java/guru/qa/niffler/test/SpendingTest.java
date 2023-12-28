@@ -2,58 +2,49 @@ package guru.qa.niffler.test;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
-import guru.qa.niffler.jupiter.DisabledByIssue;
-import guru.qa.niffler.jupiter.GenerateSpend;
+import guru.qa.niffler.jupiter.annotation.GenerateCategory;
+import guru.qa.niffler.jupiter.annotation.GenerateSpend;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import io.qameta.allure.Allure;
-import org.junit.jupiter.api.BeforeEach;
+import guru.qa.niffler.page.LoginPage;
+import guru.qa.niffler.page.MainPage;
+import guru.qa.niffler.page.WelcomePage;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.codeborne.selenide.CollectionCondition.size;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selenide.$;
+public class SpendingTest extends BaseWebTest{
 
-public class SpendingTest extends BaseWebTest {
+    private final WelcomePage welcomePage = new WelcomePage();
+    private final MainPage mainPage = new MainPage();
+    private final LoginPage loginPage = new LoginPage();
 
-  static {
-    Configuration.browserSize = "1980x1024";
-  }
+    static {
+        Configuration.browserSize = "1980x1024";
+    }
 
-  @BeforeEach
-  void doLogin() {
-    Selenide.open("http://127.0.0.1:3000/main");
-    $("a[href*='redirect']").click();
-    $("input[name='username']").setValue("duck");
-    $("input[name='password']").setValue("12345");
-    $("button[type='submit']").click();
-  }
-
-  @GenerateSpend(
-      username = "duck",
-      description = "QA.GURU Advanced 4",
-      amount = 72500.00,
-      category = "Обучение",
-      currency = CurrencyValues.RUB
-  )
-  @DisabledByIssue("74")
-  @Test
-  void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
-    $(".spendings-table tbody")
-        .$$("tr")
-        .find(text(spend.description()))
-        .$$("td")
-        .first()
-        .click();
-
-    Allure.step("Delete spending", () -> $(byText("Delete selected"))
-        .click());
-
-    Allure.step("Check that spending was deleted", () -> {
-      $(".spendings-table tbody")
-          .$$("tr")
-          .shouldHave(size(0));
-    });
-  }
+    @GenerateCategory(
+            username = "duck",
+            category = "Обучение"
+    )
+    @GenerateSpend(
+            description = "QA.GURU Advanced 4",
+            amount = 72500.00,
+            currency = CurrencyValues.RUB
+    )
+    @Test
+    @DisplayName("Выбранная трата должна быть удалена при нажатии кнопки [Delete selected]")
+    void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
+        Selenide.open("http://127.0.0.1:3000");
+        welcomePage
+                .clickLoginButton();
+        loginPage
+                .setUsername("duck")
+                .setPassword("12345")
+                .clickSignInButton();
+        mainPage
+                .checkSpendingsTableRowsHasSize(1)
+                .selectSpendingByDescription(spend.description())
+                .clickDeleteSelectedButton()
+                .checkSpendingsTableRowsHasSize(0);
+    }
 }
