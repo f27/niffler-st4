@@ -6,12 +6,17 @@ import guru.qa.niffler.jupiter.annotation.GenerateCategory;
 import guru.qa.niffler.jupiter.annotation.GenerateSpend;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
+import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.WelcomePage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class SpendingTest {
+
+    private final WelcomePage welcomePage = new WelcomePage();
+    private final MainPage mainPage = new MainPage();
+    private final LoginPage loginPage = new LoginPage();
 
     static {
         Configuration.browserSize = "1980x1024";
@@ -29,11 +34,14 @@ public class SpendingTest {
     @Test
     @DisplayName("Выбранная трата должна быть удалена при нажатии кнопки [Delete selected]")
     void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
-        Selenide.open("http://127.0.0.1:3000", WelcomePage.class)
-                .clickLoginButton()
+        Selenide.open("http://127.0.0.1:3000");
+        welcomePage
+                .clickLoginButton();
+        loginPage
                 .setUsername("duck")
                 .setPassword("12345")
-                .clickSignInButton(MainPage.class)
+                .clickSignInButton();
+        mainPage
                 .checkSpendingsTableHasSize(1)
                 .selectSpendingByDescription(spend.description())
                 .clickDeleteSelectedButton()
