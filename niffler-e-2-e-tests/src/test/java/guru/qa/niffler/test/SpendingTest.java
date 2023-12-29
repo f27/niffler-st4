@@ -1,6 +1,5 @@
 package guru.qa.niffler.test;
 
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.jupiter.annotation.GenerateCategory;
 import guru.qa.niffler.jupiter.annotation.GenerateSpend;
@@ -12,15 +11,11 @@ import guru.qa.niffler.page.WelcomePage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class SpendingTest extends BaseWebTest{
+public class SpendingTest extends BaseWebTest {
 
     private final WelcomePage welcomePage = new WelcomePage();
     private final MainPage mainPage = new MainPage();
     private final LoginPage loginPage = new LoginPage();
-
-    static {
-        Configuration.browserSize = "1980x1024";
-    }
 
     @GenerateCategory(
             username = "duck",
