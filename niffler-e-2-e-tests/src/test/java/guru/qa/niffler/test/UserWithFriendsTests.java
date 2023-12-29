@@ -55,7 +55,7 @@ public class UserWithFriendsTests extends BaseWebTest {
 
 
     @Test
-    @DisplayName("Пользователь с друзьми не должен видеть пользователя отправившего приглашение на странице с друзьми")
+    @DisplayName("Пользователь с друзьями не должен видеть пользователя отправившего приглашение на странице с друзьми")
     void userWithFriendsShouldNotSeeInvitationSentUserInFriendsTable(@User(WITH_FRIENDS) UserJson userWithFriends,
                                                                      @User(INVITATION_SENT) UserJson userInvitationSent) {
         Assertions.assertNotEquals(null, userInvitationSent);
