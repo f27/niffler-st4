@@ -7,10 +7,12 @@ import guru.qa.niffler.page.FriendsPage;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.WelcomePage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_SENT;
 import static guru.qa.niffler.jupiter.annotation.User.UserType.WITH_FRIENDS;
 
 public class UserWithFriendsTests extends BaseWebTest {
@@ -49,5 +51,16 @@ public class UserWithFriendsTests extends BaseWebTest {
     @DisplayName("У пользователя с друзьями в таблице с друзьями должен быть аватар друга")
     void userWithFriendsShouldHaveFriendsAvatarInFriendsTable() {
         friendsPage.checkFriendsTableContainsFriendsAvatar();
+    }
+
+
+    @Test
+    @DisplayName("Пользователь с друзьми не должен видеть пользователя отправившего приглашение на странице с друзьми")
+    void userWithFriendsShouldNotSeeInvitationSentUserInFriendsTable(@User(WITH_FRIENDS) UserJson userWithFriends,
+                                                                     @User(INVITATION_SENT) UserJson userInvitationSent) {
+        Assertions.assertNotEquals(null, userInvitationSent);
+        Assertions.assertNotEquals(null, userWithFriends);
+        Assertions.assertNotEquals(userWithFriends.username(), userInvitationSent.username());
+        friendsPage.checkFriendsTableNotContainsFriend(userInvitationSent.username());
     }
 }

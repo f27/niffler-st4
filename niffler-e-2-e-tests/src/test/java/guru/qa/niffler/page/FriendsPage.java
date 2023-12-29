@@ -4,6 +4,7 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.CollectionCondition.size;
+import static com.codeborne.selenide.Condition.exactOwnText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
@@ -39,8 +40,14 @@ public class FriendsPage {
     }
 
     @Step("Проверить, что в таблице с друзьями есть кнопка [Submit invitation]")
-    public FriendsPage checkAllPeopleTableContainsSubmitInvitationButton() {
+    public FriendsPage checkFriendsTableContainsSubmitInvitationButton() {
         friendsTable.$("[data-tooltip-id='submit-invitation']").shouldBe(visible);
+        return this;
+    }
+
+    @Step("Проверить, что в таблице с друзьями нет друга с именем [{username}]")
+    public FriendsPage checkFriendsTableNotContainsFriend(String username) {
+        friendsTable.$$("td").findBy(exactOwnText(username)).shouldNotBe(visible);
         return this;
     }
 }

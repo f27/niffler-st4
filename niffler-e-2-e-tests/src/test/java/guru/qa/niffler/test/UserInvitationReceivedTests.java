@@ -45,7 +45,7 @@ public class UserInvitationReceivedTests extends BaseWebTest {
         mainPage
                 .clickAllPeopleButton();
         friendsPage
-                .checkAllPeopleTableContainsSubmitInvitationButton();
+                .checkFriendsTableContainsSubmitInvitationButton();
     }
 
     @Test
