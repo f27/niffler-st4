@@ -42,21 +42,6 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
         USERS.put(INVITATION_RECEIVED, invitationReceivedQueue);
     }
 
-    private static UserJson user(String username, String password) {
-        return new UserJson(
-                null,
-                username,
-                null,
-                null,
-                CurrencyValues.RUB,
-                null,
-                null,
-                new TestData(
-                        password
-                )
-        );
-    }
-
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         List<Parameter> parameters = getAllParametersFromBeforeEachMethods(context);
@@ -121,5 +106,20 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
             Collections.addAll(parameters, beforeEachMethod.getParameters());
         }
         return parameters;
+    }
+
+    private static UserJson user(String username, String password) {
+        return new UserJson(
+                null,
+                username,
+                null,
+                null,
+                CurrencyValues.RUB,
+                null,
+                null,
+                new TestData(
+                        password
+                )
+        );
     }
 }
