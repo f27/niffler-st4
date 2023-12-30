@@ -21,7 +21,7 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
     public static final ExtensionContext.Namespace USERS_QUEUE_NAMESPACE
             = ExtensionContext.Namespace.create(UsersQueueExtension.class);
 
-    private static final Map<User.UserType, Queue<UserJson>> users = new ConcurrentHashMap<>();
+    private static final Map<User.UserType, Queue<UserJson>> USERS = new ConcurrentHashMap<>();
 
     static {
         Queue<UserJson> friendsQueue = new ConcurrentLinkedQueue<>();
@@ -37,9 +37,24 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
         invitationReceivedQueue.add(user("barsik", "12345"));
         invitationReceivedQueue.add(user("fish", "12345"));
 
-        users.put(WITH_FRIENDS, friendsQueue);
-        users.put(INVITATION_SENT, invitationSentQueue);
-        users.put(INVITATION_RECEIVED, invitationReceivedQueue);
+        USERS.put(WITH_FRIENDS, friendsQueue);
+        USERS.put(INVITATION_SENT, invitationSentQueue);
+        USERS.put(INVITATION_RECEIVED, invitationReceivedQueue);
+    }
+
+    private static UserJson user(String username, String password) {
+        return new UserJson(
+                null,
+                username,
+                null,
+                null,
+                CurrencyValues.RUB,
+                null,
+                null,
+                new TestData(
+                        password
+                )
+        );
     }
 
     @Override
@@ -48,6 +63,7 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
         Collections.addAll(parameters, context.getRequiredTestMethod().getParameters());
         parameters = parameters.stream()
                 .filter(parameter -> parameter.isAnnotationPresent(User.class))
+                .filter(parameter -> parameter.getType().isAssignableFrom(UserJson.class))
                 .toList();
 
         context.getStore(USERS_QUEUE_NAMESPACE)
@@ -60,16 +76,14 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
                     .get(annotation.value()) != null) {
                 continue;
             }
-            if (parameter.getType().isAssignableFrom(UserJson.class)) {
-                UserJson testCandidate = null;
-                Queue<UserJson> queue = users.get(annotation.value());
-                while (testCandidate == null) {
-                    testCandidate = queue.poll();
-                }
-                context.getStore(USERS_QUEUE_NAMESPACE)
-                        .get(context.getUniqueId(), Map.class)
-                        .put(annotation.value(), testCandidate);
+            UserJson testCandidate = null;
+            Queue<UserJson> queue = USERS.get(annotation.value());
+            while (testCandidate == null) {
+                testCandidate = queue.poll();
             }
+            context.getStore(USERS_QUEUE_NAMESPACE)
+                    .get(context.getUniqueId(), Map.class)
+                    .put(annotation.value(), testCandidate);
         }
     }
 
@@ -78,7 +92,7 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
         Map<User.UserType, UserJson> usersFromTest = (Map<User.UserType, UserJson>) context.getStore(USERS_QUEUE_NAMESPACE)
                 .get(context.getUniqueId(), Map.class);
         for (User.UserType userType : usersFromTest.keySet()) {
-            users.get(userType).add(usersFromTest.get(userType));
+            USERS.get(userType).add(usersFromTest.get(userType));
         }
     }
 
@@ -107,20 +121,5 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
             Collections.addAll(parameters, beforeEachMethod.getParameters());
         }
         return parameters;
-    }
-
-    private static UserJson user(String username, String password) {
-        return new UserJson(
-                null,
-                username,
-                null,
-                null,
-                CurrencyValues.RUB,
-                null,
-                null,
-                new TestData(
-                        password
-                )
-        );
     }
 }
