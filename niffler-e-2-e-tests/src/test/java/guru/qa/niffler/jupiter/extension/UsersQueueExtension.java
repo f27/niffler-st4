@@ -1,12 +1,12 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.TestData;
 import guru.qa.niffler.model.UserJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.*;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static guru.qa.niffler.jupiter.annotation.User.UserType.*;
+import static guru.qa.niffler.model.UserJson.defaultUser;
 
 @SuppressWarnings("unchecked")
 public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecutionCallback, ParameterResolver {
@@ -25,17 +26,16 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
 
     static {
         Queue<UserJson> friendsQueue = new ConcurrentLinkedQueue<>();
-        friendsQueue.add(user("dima", "12345"));
-        friendsQueue.add(user("duck", "12345"));
-
+        friendsQueue.add(defaultUser("dima", new TestData("12345", "duck")));
+        friendsQueue.add(defaultUser("duck", new TestData("12345", "dima")));
 
         Queue<UserJson> invitationSentQueue = new ConcurrentLinkedQueue<>();
-        invitationSentQueue.add(user("bee", "12345"));
-        invitationSentQueue.add(user("dog", "12345"));
+        invitationSentQueue.add(defaultUser("bee", new TestData("12345", "barsik")));
+        invitationSentQueue.add(defaultUser("dog", new TestData("12345", "fish")));
 
         Queue<UserJson> invitationReceivedQueue = new ConcurrentLinkedQueue<>();
-        invitationReceivedQueue.add(user("barsik", "12345"));
-        invitationReceivedQueue.add(user("fish", "12345"));
+        invitationReceivedQueue.add(defaultUser("barsik", new TestData("12345", "bee")));
+        invitationReceivedQueue.add(defaultUser("fish", new TestData("12345", "dog")));
 
         USERS.put(WITH_FRIENDS, friendsQueue);
         USERS.put(INVITATION_SENT, invitationSentQueue);
@@ -44,32 +44,39 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
-        List<Parameter> parameters = getAllParametersFromBeforeEachMethods(context);
-        Collections.addAll(parameters, context.getRequiredTestMethod().getParameters());
-        parameters = parameters.stream()
+        List<Method> methods = new ArrayList<>();
+        methods.add(context.getRequiredTestMethod());
+        Arrays.stream(context.getRequiredTestClass().getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(BeforeEach.class))
+                .forEach(methods::add);
+
+        List<Parameter> parameters = methods.stream()
+                .map(Executable::getParameters)
+                .flatMap(Arrays::stream)
                 .filter(parameter -> parameter.isAnnotationPresent(User.class))
                 .filter(parameter -> parameter.getType().isAssignableFrom(UserJson.class))
                 .toList();
 
-        context.getStore(USERS_QUEUE_NAMESPACE)
-                .getOrComputeIfAbsent(context.getUniqueId(), s -> new HashMap<User.UserType, UserJson>());
+        Map<User.UserType, UserJson> usersForTest = new HashMap<>();
 
         for (Parameter parameter : parameters) {
-            User annotation = parameter.getAnnotation(User.class);
-            if (context.getStore(USERS_QUEUE_NAMESPACE)
-                    .get(context.getUniqueId(), Map.class)
-                    .get(annotation.value()) != null) {
+            User.UserType userType = parameter.getAnnotation(User.class).value();
+
+            if (usersForTest.containsKey(userType)) {
                 continue;
             }
+
             UserJson testCandidate = null;
-            Queue<UserJson> queue = USERS.get(annotation.value());
+            Queue<UserJson> queue = USERS.get(userType);
             while (testCandidate == null) {
                 testCandidate = queue.poll();
             }
-            context.getStore(USERS_QUEUE_NAMESPACE)
-                    .get(context.getUniqueId(), Map.class)
-                    .put(annotation.value(), testCandidate);
+
+            usersForTest.put(userType, testCandidate);
         }
+
+        context.getStore(USERS_QUEUE_NAMESPACE)
+                .put(context.getUniqueId(), usersForTest);
     }
 
     @Override
@@ -95,31 +102,5 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
         return (UserJson) extensionContext.getStore(USERS_QUEUE_NAMESPACE)
                 .get(extensionContext.getUniqueId(), Map.class)
                 .get(parameterContext.findAnnotation(User.class).get().value());
-    }
-
-    private List<Parameter> getAllParametersFromBeforeEachMethods(ExtensionContext context) {
-        List<Parameter> parameters = new ArrayList<>();
-        List<Method> allBeforeEachMethods = Arrays.stream(context.getRequiredTestClass().getDeclaredMethods())
-                .filter(method -> method.isAnnotationPresent(BeforeEach.class))
-                .toList();
-        for (Method beforeEachMethod : allBeforeEachMethods) {
-            Collections.addAll(parameters, beforeEachMethod.getParameters());
-        }
-        return parameters;
-    }
-
-    private static UserJson user(String username, String password) {
-        return new UserJson(
-                null,
-                username,
-                null,
-                null,
-                CurrencyValues.RUB,
-                null,
-                null,
-                new TestData(
-                        password
-                )
-        );
     }
 }

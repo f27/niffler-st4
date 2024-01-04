@@ -3,21 +3,19 @@ package guru.qa.niffler.test;
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.page.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_RECEIVED;
 
+@Epic("WEB тесты")
+@Feature("Друзья")
+@Story("Пользователь получивший приглашение в друзья")
 public class UserInvitationReceivedTests extends BaseWebTest {
-
-    private final WelcomePage welcomePage = new WelcomePage();
-    private final MainPage mainPage = new MainPage();
-    private final LoginPage loginPage = new LoginPage();
-    private final AllPeoplePage allPeoplePage = new AllPeoplePage();
-    private final FriendsPage friendsPage = new FriendsPage();
-    private final ProfilePage profilePage = new ProfilePage();
 
     @BeforeEach
     void doLogin(@User(INVITATION_RECEIVED) UserJson user) {
@@ -31,29 +29,20 @@ public class UserInvitationReceivedTests extends BaseWebTest {
     }
 
     @Test
-    @DisplayName("У пользователя с полученным приглашением в таблице со всеми пользователями должна быть кнопка [Submit invitation]")
-    void userShouldHaveSubmitInvitationButtonInAllPeopleTable() {
+    @DisplayName("В таблице со всеми пользователями должен быть потенциальный друг с кнопкой [Submit invitation]")
+    void allPeopleTableShouldHaveUserWithSubmitInvitationButton(@User(INVITATION_RECEIVED) UserJson user) {
         mainPage
                 .clickAllPeopleButton();
         allPeoplePage
-                .checkAllPeopleTableContainsSubmitInvitationButton();
+                .checkUserHasSubmitInvitationButton(user.testData().friendUsername());
     }
 
     @Test
-    @DisplayName("У пользователя с полученным приглашением в таблице с друзьями должна быть кнопка [Submit invitation]")
-    void userShouldHaveSubmitInvitationButtonInFriendsTable() {
+    @DisplayName("В таблице с друзьями должен быть потенциальный друг с кнопкой [Submit invitation]")
+    void userShouldHaveSubmitInvitationButtonInFriendsTable(@User(INVITATION_RECEIVED) UserJson user) {
         mainPage
                 .clickAllPeopleButton();
         friendsPage
-                .checkFriendsTableContainsSubmitInvitationButton();
-    }
-
-    @Test
-    @DisplayName("У пользователя с полученным приглашением на странице профиля должен быть его юзернейм")
-    void userShouldHaveHisUsernameInProfile(@User(INVITATION_RECEIVED) UserJson user) {
-        mainPage
-                .clickProfileButton();
-        profilePage
-                .checkUsername(user.username());
+                .checkFriendsTableContainsSubmitInvitationButton(user.testData().friendUsername());
     }
 }

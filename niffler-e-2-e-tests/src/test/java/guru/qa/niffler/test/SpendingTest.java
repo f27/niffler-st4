@@ -5,17 +5,10 @@ import guru.qa.niffler.jupiter.annotation.GenerateCategory;
 import guru.qa.niffler.jupiter.annotation.GenerateSpend;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.page.LoginPage;
-import guru.qa.niffler.page.MainPage;
-import guru.qa.niffler.page.WelcomePage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class SpendingTest extends BaseWebTest {
-
-    private final WelcomePage welcomePage = new WelcomePage();
-    private final MainPage mainPage = new MainPage();
-    private final LoginPage loginPage = new LoginPage();
 
     @GenerateCategory(
             username = "duck",

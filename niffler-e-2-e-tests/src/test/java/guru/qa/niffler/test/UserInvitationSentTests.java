@@ -3,20 +3,19 @@ package guru.qa.niffler.test;
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.page.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static guru.qa.niffler.jupiter.annotation.User.UserType.INVITATION_SENT;
 
+@Epic("WEB тесты")
+@Feature("Друзья")
+@Story("Пользователь отправивший приглашение в друзья")
 public class UserInvitationSentTests extends BaseWebTest {
-
-    private final WelcomePage welcomePage = new WelcomePage();
-    private final MainPage mainPage = new MainPage();
-    private final LoginPage loginPage = new LoginPage();
-    private final AllPeoplePage allPeoplePage = new AllPeoplePage();
-    private final FriendsPage friendsPage = new FriendsPage();
 
     @BeforeEach
     void openWelcomePage() {
@@ -24,8 +23,8 @@ public class UserInvitationSentTests extends BaseWebTest {
     }
 
     @Test
-    @DisplayName("У пользователя с отправленным приглашением в таблице со всеми пользователями должен быть текст [Pending invitation]")
-    void userShouldHavePendingInvitationTextInAllPeopleTable(@User(INVITATION_SENT) UserJson user) {
+    @DisplayName("В таблице со всеми пользователями должен быть потенциальный друг со статусом [Pending invitation]")
+    void allPeopleTableShouldHaveUserWithStatusPendingInvitation(@User(INVITATION_SENT) UserJson user) {
         welcomePage
                 .clickLoginButton();
         loginPage
@@ -35,12 +34,12 @@ public class UserInvitationSentTests extends BaseWebTest {
         mainPage
                 .clickAllPeopleButton();
         allPeoplePage
-                .checkAllPeopleTableContainsPendingInvitationText();
+                .checkUserHasStatusPendingInvitation(user.testData().friendUsername());
     }
 
     @Test
-    @DisplayName("У пользователя с отправленным приглашением в таблице со всеми пользователями должен быть виден аватар другого пользователя")
-    void userShouldHaveAnotherUserAvatarInAllPeopleTable(@User(INVITATION_SENT) UserJson user) {
+    @DisplayName("В таблице со всеми пользователями у потенциального друга должен быть аватар")
+    void allPeopleTableShouldHaveUserWithAvatar(@User(INVITATION_SENT) UserJson user) {
         welcomePage
                 .clickLoginButton();
         loginPage
@@ -50,11 +49,11 @@ public class UserInvitationSentTests extends BaseWebTest {
         mainPage
                 .clickAllPeopleButton();
         allPeoplePage
-                .checkAllPeopleTableContainsAnotherUserAvatar();
+                .checkUserHasUserAvatar(user.testData().friendUsername());
     }
 
     @Test
-    @DisplayName("У пользователя с отправленным приглашением в таблице с друзьями не должно быть друзей")
+    @DisplayName("В таблице с друзьями не должно быть друзей")
     void userShouldNotHaveFriendsInFriendsTable(@User(INVITATION_SENT) UserJson user) {
         welcomePage
                 .clickLoginButton();
