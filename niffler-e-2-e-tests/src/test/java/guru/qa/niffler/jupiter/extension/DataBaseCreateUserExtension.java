@@ -2,7 +2,6 @@ package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.db.model.*;
 import guru.qa.niffler.db.repository.UserRepository;
-import guru.qa.niffler.db.repository.UserRepositoryJdbc;
 import guru.qa.niffler.helper.RandomHelper;
 import guru.qa.niffler.jupiter.annotation.DbUser;
 import org.junit.jupiter.api.extension.*;
@@ -17,7 +16,7 @@ public class DataBaseCreateUserExtension implements BeforeEachCallback, AfterTes
 
     public static final ExtensionContext.Namespace DB_CREATE_USER_NAMESPACE
             = ExtensionContext.Namespace.create(DataBaseCreateUserExtension.class);
-    private final static UserRepository userRepository = new UserRepositoryJdbc();
+    private final static UserRepository userRepository = UserRepository.getRepository();
     private final static String userAuthKey = "userAuth";
     private final static String userDataKey = "user";
 
@@ -72,8 +71,8 @@ public class DataBaseCreateUserExtension implements BeforeEachCallback, AfterTes
 
         if (dbUserAnnotation.isPresent()) {
             Map createdUser = extensionContext.getStore(DB_CREATE_USER_NAMESPACE).get(extensionContext.getUniqueId(), Map.class);
-            userRepository.deleteInAuthById(((UserAuthEntity)createdUser.get(userAuthKey)).getId());
-            userRepository.deleteInUserdataById(((UserEntity)createdUser.get(userDataKey)).getId());
+            userRepository.deleteInAuthById(((UserAuthEntity) createdUser.get(userAuthKey)).getId());
+            userRepository.deleteInUserdataById(((UserEntity) createdUser.get(userDataKey)).getId());
         }
 
     }
