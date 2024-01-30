@@ -289,7 +289,36 @@ public class UserRepositoryJdbc implements UserRepository {
 
     @Override
     public UserEntity updateInUserdata(UserEntity user) {
-        return null;
+        try (Connection conn = udDs.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE \"user\" " +
+                            "SET username = ?, currency = ?, firstname = ?, surname = ? " +
+                            "WHERE id = ?", PreparedStatement.RETURN_GENERATED_KEYS)
+            ) {
+
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getCurrency().name());
+                ps.setString(3, user.getFirstname());
+                ps.setString(4, user.getSurname());
+                ps.setObject(5, user.getId());
+                ps.executeUpdate();
+
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        user.setId(UUID.fromString(keys.getString("id")));
+                        user.setUsername(keys.getString("username"));
+                        user.setCurrency(CurrencyValues.valueOf(keys.getString("currency")));
+                        user.setFirstname(keys.getString("firstname"));
+                        user.setSurname(keys.getString("surname"));
+                    } else {
+                        throw new IllegalStateException("Can`t find id");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 
     @Override
