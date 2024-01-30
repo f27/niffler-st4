@@ -12,11 +12,15 @@ public interface UserRepository {
 
   Optional<UserAuthEntity> findByIdInAuth(UUID id);
 
+  UserAuthEntity updateInAuth(UserAuthEntity user);
+
+  void deleteInAuthById(UUID id);
+
   UserEntity createInUserdata(UserEntity user);
 
   Optional<UserEntity> findByIdInUserdata(UUID id);
 
-  void deleteInAuthById(UUID id);
+  UserEntity updateInUserdata(UserEntity user);
 
   void deleteInUserdataById(UUID id);
 }
