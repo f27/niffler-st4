@@ -8,31 +8,30 @@ import java.util.UUID;
 
 public interface UserRepository {
 
-  static UserRepository getRepository() {
-      if ("jdbc".equals(System.getProperty("repository"))) {
-          System.out.println("######## JDBC");
-          return new UserRepositoryJdbc();
-      }
-      if ("sjdbc".equals(System.getProperty("repository"))) {
-          System.out.println("######## SPRING-JDBC");
-          return new UserRepositorySJdbc();
-      }
-      return new UserRepositoryJdbc();
-  }
+    static UserRepository getRepository() {
+        String repository = System.getProperty("repository");
+        if ("jdbc".equals(repository)) {
+            return new UserRepositoryJdbc();
+        } else if ("sjdbc".equals(repository)) {
+            return new UserRepositorySJdbc();
+        } else {
+            throw new IllegalArgumentException("Not supported repository argument. Can be jdbc or sjdbc");
+        }
+    }
 
-  UserAuthEntity createInAuth(UserAuthEntity user);
+    UserAuthEntity createInAuth(UserAuthEntity user);
 
-  Optional<UserAuthEntity> findByIdInAuth(UUID id);
+    Optional<UserAuthEntity> findByIdInAuth(UUID id);
 
-  UserAuthEntity updateInAuth(UserAuthEntity user);
+    UserAuthEntity updateInAuth(UserAuthEntity user);
 
-  void deleteInAuthById(UUID id);
+    void deleteInAuthById(UUID id);
 
-  UserEntity createInUserdata(UserEntity user);
+    UserEntity createInUserdata(UserEntity user);
 
-  Optional<UserEntity> findByIdInUserdata(UUID id);
+    Optional<UserEntity> findByIdInUserdata(UUID id);
 
-  UserEntity updateInUserdata(UserEntity user);
+    UserEntity updateInUserdata(UserEntity user);
 
-  void deleteInUserdataById(UUID id);
+    void deleteInUserdataById(UUID id);
 }
