@@ -2,6 +2,7 @@ package guru.qa.niffler.test;
 
 import guru.qa.niffler.db.model.*;
 import guru.qa.niffler.db.repository.UserRepository;
+import guru.qa.niffler.helper.RandomHelper;
 import guru.qa.niffler.jupiter.extension.UserRepositoryExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +21,12 @@ public class DbUpdateUserTest {
     private UserAuthEntity userAuth;
     private UserEntity user;
 
+    private final String USERNAME = RandomHelper.generateString(10);
+
     @BeforeEach
     void createUser() {
         userAuth = new UserAuthEntity();
-        userAuth.setUsername("valentin_f27");
+        userAuth.setUsername(USERNAME);
         userAuth.setPassword("12345");
         userAuth.setEnabled(true);
         userAuth.setAccountNonExpired(true);
@@ -38,7 +41,7 @@ public class DbUpdateUserTest {
         );
 
         user = new UserEntity();
-        user.setUsername("valentin_f27");
+        user.setUsername(USERNAME);
         user.setCurrency(CurrencyValues.RUB);
         userRepository.createInAuth(userAuth);
         userRepository.createInUserdata(user);
@@ -58,6 +61,7 @@ public class DbUpdateUserTest {
         userRepository.updateInAuth(userAuth);
         Optional<UserAuthEntity> userFromDb = userRepository.findByIdInAuth(userAuth.getId());
         assertTrue(userFromDb.isPresent());
+        assertEquals(userFromDb.get().getId(), userAuth.getId());
         assertEquals(userFromDb.get().getAuthorities().size(), 1);
         assertEquals(userFromDb.get().getAuthorities().get(0).getAuthority(), Authority.write);
     }
@@ -70,6 +74,7 @@ public class DbUpdateUserTest {
         userRepository.updateInAuth(userAuth);
         Optional<UserAuthEntity> userFromDb = userRepository.findByIdInAuth(userAuth.getId());
         assertTrue(userFromDb.isPresent());
+        assertEquals(userFromDb.get().getId(), userAuth.getId());
         assertEquals(userFromDb.get().getAuthorities().size(), 1);
         assertEquals(userFromDb.get().getAuthorities().get(0).getAuthority(), Authority.read);
     }
@@ -80,6 +85,7 @@ public class DbUpdateUserTest {
         userRepository.updateInAuth(userAuth);
         Optional<UserAuthEntity> userFromDb = userRepository.findByIdInAuth(userAuth.getId());
         assertTrue(userFromDb.isPresent());
+        assertEquals(userFromDb.get().getId(), userAuth.getId());
         assertEquals(userFromDb.get().getAuthorities().size(), 0);
     }
 
@@ -96,6 +102,18 @@ public class DbUpdateUserTest {
         userRepository.updateInAuth(userAuth);
         Optional<UserAuthEntity> userFromDb = userRepository.findByIdInAuth(userAuth.getId());
         assertTrue(userFromDb.isPresent());
+        assertEquals(userFromDb.get().getId(), userAuth.getId());
         assertEquals(userFromDb.get().getAuthorities().size(), 2);
+    }
+
+    @Test
+    void updateUserDataTest() {
+        String firstname = USERNAME + "_firstname";
+        user.setFirstname(firstname);
+        userRepository.updateInUserdata(user);
+        Optional<UserEntity> userFromDb = userRepository.findByIdInUserdata(user.getId());
+        assertTrue(userFromDb.isPresent());
+        assertEquals(userFromDb.get().getId(), user.getId());
+        assertEquals(userFromDb.get().getFirstname(), firstname);
     }
 }

@@ -31,10 +31,12 @@ public class UserAuthEntityResultSetExtractor implements ResultSetExtractor<User
         userProcessed = true;
       }
 
-      AuthorityEntity authority = new AuthorityEntity();
-      authority.setId(rs.getObject(8, UUID.class));
-      authority.setAuthority(Authority.valueOf(rs.getString(10)));
-      user.getAuthorities().add(authority);
+      if (rs.getString(10) != null) {
+        AuthorityEntity authority = new AuthorityEntity();
+        authority.setId(rs.getObject(8, UUID.class));
+        authority.setAuthority(Authority.valueOf(rs.getString(10)));
+        user.getAuthorities().add(authority);
+      }
     }
     return user;
   }
