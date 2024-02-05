@@ -8,15 +8,34 @@ import java.util.UUID;
 
 public interface UserRepository {
 
-  UserAuthEntity createInAuth(UserAuthEntity user);
+    static UserRepository getRepository() {
+        String repository = System.getProperty("repository");
+        if (repository == null || repository.isEmpty()) {
+            repository = "jdbc";
+        }
+        if ("jdbc".equals(repository)) {
+            return new UserRepositoryJdbc();
+        } else if ("sjdbc".equals(repository)) {
+            return new UserRepositorySJdbc();
+        } else {
+            throw new IllegalArgumentException("Not supported repository argument. " +
+                    "Can be \"jdbc\", \"sjdbc\" or empty(default: \"jdbc\")");
+        }
+    }
 
-  Optional<UserAuthEntity> findByIdInAuth(UUID id);
+    UserAuthEntity createInAuth(UserAuthEntity user);
 
-  UserEntity createInUserdata(UserEntity user);
+    Optional<UserAuthEntity> findByIdInAuth(UUID id);
 
-  Optional<UserEntity> findByIdInUserdata(UUID id);
+    UserAuthEntity updateInAuth(UserAuthEntity user);
 
-  void deleteInAuthById(UUID id);
+    void deleteInAuthById(UUID id);
 
-  void deleteInUserdataById(UUID id);
+    UserEntity createInUserdata(UserEntity user);
+
+    Optional<UserEntity> findByIdInUserdata(UUID id);
+
+    UserEntity updateInUserdata(UserEntity user);
+
+    void deleteInUserdataById(UUID id);
 }
